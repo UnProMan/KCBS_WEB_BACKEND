@@ -1,0 +1,26 @@
+server:
+  servlet:
+    context-path: /kcbs
+
+spring:
+  profile:
+    active: local
+
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+      default_batch_fetch_size: 500
+    properties:
+      hibernate:
+        format_sql: true
+
+  security:
+    user:
+      password: 1
+
+logging:
+  level:
+    org.hibernate.SQL: debug
