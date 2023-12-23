@@ -3,7 +3,7 @@ server:
     context-path: /kcbs
 
 spring:
-  profile:
+  profiles:
     active: local
 
   jackson:

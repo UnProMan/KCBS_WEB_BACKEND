@@ -9,5 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
-    Optional<RefreshToken> findByIdAndReissueCountLessThan(Long id, long count);
+    Optional<RefreshToken> findByIdAndReissueCountLessThan(Long id, int count);
 }

@@ -29,7 +29,7 @@ public class TokenProvider {
     private final long expirationMinutes;
     private final long refreshExpirationHours;
     private final String issuer;
-    private final long reissueLimit;
+    private final int reissueLimit;
     private final RefreshTokenRepository refreshTokenRepository;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -46,13 +46,13 @@ public class TokenProvider {
         this.refreshExpirationHours = refreshExpirationHours;
         this.issuer = issuer;
         this.refreshTokenRepository = refreshTokenRepository;
-        this.reissueLimit = refreshExpirationHours * 60 / expirationMinutes;
+        this.reissueLimit = (int) (refreshExpirationHours * 60 / expirationMinutes);
     }
 
     public String createAccessToken(String userSpecification) {
         return Jwts.builder()
-                // HS512 알고리즘을 사용하여 secretKey를 이용해 서명
-                .signWith(new SecretKeySpec(secretKey.getBytes(), SignatureAlgorithm.HS512.getJcaName()))
+                // HS256 알고리즘을 사용하여 secretKey를 이용해 서명
+                .signWith(new SecretKeySpec(secretKey.getBytes(), SignatureAlgorithm.HS256.getJcaName()))
                 .setSubject(userSpecification) // JWT 토큰 제목
                 .setIssuer(issuer) // JWT 토큰 발급자
                 .setIssuedAt(Timestamp.valueOf(LocalDateTime.now())) // JWT 토큰 발급 시간
@@ -62,38 +62,81 @@ public class TokenProvider {
 
     public String createRefreshToken() {
         return Jwts.builder()
-                .signWith(new SecretKeySpec(secretKey.getBytes(), SignatureAlgorithm.HS512.getJcaName()))
+                .signWith(new SecretKeySpec(secretKey.getBytes(), SignatureAlgorithm.HS256.getJcaName()))
                 .setIssuer(issuer)
                 .setIssuedAt(Timestamp.valueOf(LocalDateTime.now()))
                 .setExpiration(Date.from(Instant.now().plus(refreshExpirationHours, ChronoUnit.HOURS)))
                 .compact();
     }
 
+    /**
+     *
+     * @param token
+     * @return String
+     *
+     * validateAndParseToken() 호출하여 검증하고,
+     * 토큰의 주체(SubJect)를 추출
+     *
+     */
     public String validateTokenAndGetSubject(String token) {
         return validateAndParseToken(token)
                 .getBody()
                 .getSubject();
     }
 
+    /**
+     *
+     * @param oldAccessToken
+     * @return String
+     * @throws JsonProcessingException
+     *
+     * 기존 AccessToken을 토대로 새로운 AccessToken 생성
+     * RefreshRepository에서 기존 AccessToken에 담긴 정보를 토대로 재발급 한도에 초과하지 않은
+     * RefreshToken을 찾고, 재발급 횟수 + 1 하고, 새로운 AccessToken을 발행한다.
+     *
+     */
     @Transactional
     public String recreateAccessToken(String oldAccessToken) throws JsonProcessingException {
         String subject = decodeJwtPayloadSubject(oldAccessToken);
-        refreshTokenRepository.findByIdAndReissueCountLessThan(Long.valueOf(subject.split(":")[0]), reissueLimit)
+        refreshTokenRepository.findByIdAndReissueCountLessThan(Long.parseLong(subject), reissueLimit)
                 .ifPresentOrElse(
                         RefreshToken::increaseReissueCount,
-                        () -> { new ExpiredJwtException(null, null, "Refresh Token expired"); }
+                        () -> {
+                            throw new ExpiredJwtException(null, null, "Refresh Token expired");
+                        }
                 );
         return createAccessToken(subject);
     }
 
+    /**
+     *
+     * @param refreshToken
+     * @param oldAccessToken
+     * @throws JsonProcessingException
+     *
+     * RefreshToken이 유요한지 검증
+     * validateAndParseToken()을 호출하여 RefreshToken 자체가 유효한지 검사
+     * 만약 유효한 RefreshToken인 경우 oldAccessToken에 담긴 정보로 RefreshToken을 찾고,
+     * 인자로 받은 RefreshToken과 찾은 RefreshToken 값을 비교하여 검증
+     *
+     */
     public void validateRefreshToken(String refreshToken, String oldAccessToken) throws JsonProcessingException {
         validateAndParseToken(refreshToken);
-        String userId = decodeJwtPayloadSubject(oldAccessToken).split(":")[0];
+        String userId = decodeJwtPayloadSubject(oldAccessToken);
         refreshTokenRepository.findByIdAndReissueCountLessThan(Long.parseLong(userId), reissueLimit)
-                .filter(userRefreshToken -> userRefreshToken.validateRefreshToken(refreshToken))
+                .filter(userRefreshToken -> userRefreshToken.validRefreshToken(refreshToken))
                 .orElseThrow(() -> new ExpiredJwtException(null, null, "Refresh Token expired"));
     }
 
+    /**
+     *
+     * @param token
+     * @return Jws<Claims>
+     *
+     * 내부의  parseCliamJws()애서 JWT를 파싱할 때,
+     * 토큰이 유효한지 검사하는 검증기능
+     *
+     */
     public Jws<Claims> validateAndParseToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey.getBytes())
@@ -101,6 +144,15 @@ public class TokenProvider {
                 .parseClaimsJws(token);
     }
 
+    /**
+     *
+     * @param oldAccessToken
+     * @return String
+     * @throws JsonProcessingException
+     *
+     * JWT를 복호화 하고, 데이터가 담긴 Payload에서 SubJect 반환
+     *
+     */
     public String decodeJwtPayloadSubject(String oldAccessToken) throws JsonProcessingException {
         return objectMapper.readValue(
                 new String(Base64.getDecoder().decode(oldAccessToken.split("\\.")[1]), StandardCharsets.UTF_8),

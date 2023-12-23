@@ -4,8 +4,10 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
 
 @RestControllerAdvice
 public class CustomExceptionHandler {
@@ -15,23 +17,28 @@ public class CustomExceptionHandler {
         return ErrorResponseEntity.to(exception.getErrorCode());
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    protected ResponseEntity<ErrorResponseEntity> handlerAccessDenied() {
+        return ErrorResponseEntity.to(CustomErrorCode.ACCESS_DENIED);
+    }
+
     @ExceptionHandler(RuntimeException.class)
     protected ResponseEntity<ErrorResponseEntity> handlerRuntimeException() {
         return ErrorResponseEntity.to(CustomErrorCode.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(SignatureException.class)
-    public ResponseEntity<ErrorResponseEntity> handleSignatureException() {
+    protected ResponseEntity<ErrorResponseEntity> handleSignatureException() {
         return ErrorResponseEntity.to(CustomErrorCode.INVALID_TOKEN_ERROR);
     }
 
     @ExceptionHandler(MalformedJwtException.class)
-    public ResponseEntity<ErrorResponseEntity> handleMalformedJwtException() {
+    protected ResponseEntity<ErrorResponseEntity> handleMalformedJwtException() {
         return ErrorResponseEntity.to(CustomErrorCode.INVALID_TOKEN_ERROR);
     }
 
     @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<ErrorResponseEntity> handleExpiredJwtException() {
+    protected ResponseEntity<ErrorResponseEntity> handleExpiredJwtException() {
         return ErrorResponseEntity.to(CustomErrorCode.TOKEN_EXPIRED_ERROR);
     }
 

@@ -16,7 +16,7 @@ public class UserDto {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class LoginDto {
+    public static class LoginRequestDto {
         @JsonProperty("studentId")
         private String studentId;
         private String password;

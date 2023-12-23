@@ -25,6 +25,7 @@ public class UserLoad {
                 .id(1L)
                 .studentId("2022136131")
                 .name("허명철")
+                .email("soon3771@koreatech.ac.kr")
                 .password(encoder.encode("1234"))
                 .birthday(LocalDate.of(2003, 9, 11))
                 .phone_Number("010-2699-3771")

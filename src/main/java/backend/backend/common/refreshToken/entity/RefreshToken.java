@@ -2,12 +2,17 @@ package backend.backend.common.refreshToken.entity;
 
 import backend.backend.domain.user.entity.User;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Entity
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "REFRESH_TOKEN")
 public class RefreshToken {
 
     @Id
@@ -30,9 +35,10 @@ public class RefreshToken {
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+        this.reissueCount = 0;
     }
 
-    public boolean validateRefreshToken(String refreshToken) {
+    public boolean validRefreshToken(String refreshToken) {
         return this.refreshToken.equals(refreshToken);
     }
 
