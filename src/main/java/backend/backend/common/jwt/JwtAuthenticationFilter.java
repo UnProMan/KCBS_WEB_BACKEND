@@ -90,9 +90,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     /**
      *
      * @param token
-     * @return
+     * @return PrincipalUser
      *
-     *
+     * AccessToken을 받고, 받은 정보를 통해 로그인한 유저 정보를 가져옴
      *
      */
     private PrincipalUser parseUserSpecification(String token) {
@@ -104,6 +104,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         );
     }
 
+    /**
+     *
+     * @param request
+     * @param response
+     * @param exception
+     * @throws IOException
+     *
+     * RefreshToken의 유효성 검사 후
+     * 유효한 RefreshToken의 경우 새로운 AccessToken 생성
+     *
+     */
     private void reissueAccessToken(HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException {
         try {
             String refreshToken = parseBearerToken(request, "Refresh-Token");
