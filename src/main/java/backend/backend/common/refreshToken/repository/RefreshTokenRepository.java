@@ -9,5 +9,18 @@ import java.util.UUID;
 
 @Repository
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
-    Optional<RefreshToken> findByIdAndReissueCountLessThan(Long id, int count);
+
+    /**
+     *
+     * @param refreshToken
+     * @param count
+     * @return Optional<RefreshToken>
+     *
+     * 발급 제한 횟수보다 적으면서 해당 인자로 받은 RefreshToken과 같은 정보를 가져옴
+     *
+     */
+    Optional<RefreshToken> findByRefreshTokenAndReissueCountLessThan(String refreshToken, int count);
+
+    Optional<RefreshToken> findByRefreshToken(String refreshToken);
+
 }

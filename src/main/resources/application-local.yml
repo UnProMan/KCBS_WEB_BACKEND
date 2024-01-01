@@ -1,3 +1,8 @@
+server:
+  host:
+    api: http://localhost:8080
+    front: http://localhost:5173
+
 spring:
   h2:
     console:

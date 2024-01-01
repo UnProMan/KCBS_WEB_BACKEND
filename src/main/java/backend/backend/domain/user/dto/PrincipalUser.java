@@ -1,5 +1,6 @@
 package backend.backend.domain.user.dto;
 
+import backend.backend.domain.user.entity.ROLE;
 import backend.backend.domain.user.entity.User;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,6 +17,9 @@ public class PrincipalUser implements UserDetails {
         this.user = user;
     }
 
+    public PrincipalUser(Long id, ROLE role) {
+        this.user = new User(id, role);
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(user.getRole());

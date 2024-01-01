@@ -35,10 +35,7 @@ public class SecurityConfig {
         return http
                 .csrf(c -> c.disable())
                 .cors(c -> c.disable())
-                // local then
-                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-                // release then
-//                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
                 .formLogin(f -> f.disable())
                 .authorizeHttpRequests(auth ->
                         auth

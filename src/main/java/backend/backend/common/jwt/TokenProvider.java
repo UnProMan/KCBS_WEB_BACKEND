@@ -2,11 +2,16 @@ package backend.backend.common.jwt;
 
 import backend.backend.common.refreshToken.entity.RefreshToken;
 import backend.backend.common.refreshToken.repository.RefreshTokenRepository;
+import backend.backend.domain.user.entity.User;
+import backend.backend.domain.user.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,10 +21,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Base64;
-import java.util.Date;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @PropertySource("classpath:jwt.yml")
 @Service
@@ -32,6 +34,8 @@ public class TokenProvider {
     private final int reissueLimit;
     private final RefreshTokenRepository refreshTokenRepository;
 
+    private final UserRepository userRepository;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public TokenProvider(
@@ -39,14 +43,16 @@ public class TokenProvider {
             @Value("${expiration-minutes}") long expirationMinutes,
             @Value("${refresh-expiration-hours}") long refreshExpirationHours,
             @Value("${issuer}") String issuer,
-            RefreshTokenRepository refreshTokenRepository
+            RefreshTokenRepository refreshTokenRepository,
+            UserRepository userRepository
     ) {
         this.secretKey = secretKey;
         this.expirationMinutes = expirationMinutes;
         this.refreshExpirationHours = refreshExpirationHours;
         this.issuer = issuer;
         this.refreshTokenRepository = refreshTokenRepository;
-        this.reissueLimit = (int) (refreshExpirationHours * 60 / expirationMinutes);
+        this.reissueLimit = (int) (refreshExpirationHours * 60 / expirationMinutes) + 50;
+        this.userRepository = userRepository;
     }
 
     public String createAccessToken(String userSpecification) {
@@ -86,45 +92,41 @@ public class TokenProvider {
 
     /**
      *
-     * @param oldAccessToken
      * @return String
      * @throws JsonProcessingException
      *
-     * 기존 AccessToken을 토대로 새로운 AccessToken 생성
-     * RefreshRepository에서 기존 AccessToken에 담긴 정보를 토대로 재발급 한도에 초과하지 않은
+     * RefreshToken을 토대로 새로운 AccessToken 생성
+     * RefreshRepository에서 cookie_Refresh_Token 토대로 재발급 한도에 초과하지 않은
      * RefreshToken을 찾고, 재발급 횟수 + 1 하고, 새로운 AccessToken을 발행한다.
      *
      */
     @Transactional
-    public String recreateAccessToken(String oldAccessToken) throws JsonProcessingException {
-        String subject = decodeJwtPayloadSubject(oldAccessToken);
-        refreshTokenRepository.findByIdAndReissueCountLessThan(Long.parseLong(subject), reissueLimit)
-                .ifPresentOrElse(
-                        RefreshToken::increaseReissueCount,
-                        () -> {
-                            throw new ExpiredJwtException(null, null, "Refresh Token expired");
-                        }
-                );
-        return createAccessToken(subject);
+    public String recreateAccessToken(String cookie_refreshToken) throws JsonProcessingException {
+        RefreshToken refreshToken = refreshTokenRepository.findByRefreshTokenAndReissueCountLessThan(cookie_refreshToken, reissueLimit)
+                .orElseThrow(() -> new ExpiredJwtException(null, null, "Refresh Token expired"));
+
+        User user = userRepository.findById(refreshToken.getId())
+                .orElseThrow(() -> new ExpiredJwtException(null, null, "Refresh Token expired"));
+
+        refreshToken.increaseReissueCount();
+
+        return createAccessToken(String.format("%s:%s", user.getId(), user.getRole()));
     }
 
     /**
      *
      * @param refreshToken
-     * @param oldAccessToken
      * @throws JsonProcessingException
      *
      * RefreshToken이 유요한지 검증
      * validateAndParseToken()을 호출하여 RefreshToken 자체가 유효한지 검사
-     * 만약 유효한 RefreshToken인 경우 oldAccessToken에 담긴 정보로 RefreshToken을 찾고,
-     * 인자로 받은 RefreshToken과 찾은 RefreshToken 값을 비교하여 검증
+     * 만약 유효한 RefreshToken인 경우 인자로 받은 RefreshToken과 찾은 RefreshToken 값을 비교하여 검증
      *
      */
-    public void validateRefreshToken(String refreshToken, String oldAccessToken) throws JsonProcessingException {
+
+    public void validateRefreshToken(String refreshToken) throws JsonProcessingException {
         validateAndParseToken(refreshToken);
-        String userId = decodeJwtPayloadSubject(oldAccessToken);
-        refreshTokenRepository.findByIdAndReissueCountLessThan(Long.parseLong(userId), reissueLimit)
-                .filter(userRefreshToken -> userRefreshToken.validRefreshToken(refreshToken))
+        refreshTokenRepository.findByRefreshTokenAndReissueCountLessThan(refreshToken, reissueLimit)
                 .orElseThrow(() -> new ExpiredJwtException(null, null, "Refresh Token expired"));
     }
 
@@ -137,7 +139,7 @@ public class TokenProvider {
      * 토큰이 유효한지 검사하는 검증기능
      *
      */
-    public Jws<Claims> validateAndParseToken(String token) {
+    private Jws<Claims> validateAndParseToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey.getBytes())
                 .build()
@@ -146,18 +148,17 @@ public class TokenProvider {
 
     /**
      *
-     * @param oldAccessToken
+     * @param request
      * @return String
-     * @throws JsonProcessingException
      *
-     * JWT를 복호화 하고, 데이터가 담긴 Payload에서 SubJect 반환
+     * request에서 AcessToken을 추출
      *
      */
-    public String decodeJwtPayloadSubject(String oldAccessToken) throws JsonProcessingException {
-        return objectMapper.readValue(
-                new String(Base64.getDecoder().decode(oldAccessToken.split("\\.")[1]), StandardCharsets.UTF_8),
-                Map.class
-        ).get("sub").toString();
+    public String parseAccessToken(HttpServletRequest request) {
+        return Optional.ofNullable(request.getHeader(HttpHeaders.AUTHORIZATION))
+                .filter(token -> token.substring(0, 7).equalsIgnoreCase("Bearer "))
+                .map(token -> token.substring(7))
+                .orElse(null);
     }
 
 }

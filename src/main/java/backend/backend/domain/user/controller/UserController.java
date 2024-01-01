@@ -1,17 +1,15 @@
 package backend.backend.domain.user.controller;
 
-import backend.backend.common.jwt.TokenDto;
+import backend.backend.common.jwt.TokenProvider;
 import backend.backend.domain.user.dto.PrincipalUser;
 import backend.backend.domain.user.dto.UserDto;
 import backend.backend.domain.user.service.UserService;
-import backend.backend.system.annotation.role.AdminAuthorize;
-import backend.backend.system.annotation.role.LeaderAuthorize;
-import backend.backend.system.annotation.role.PresidentAuthorize;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,15 +17,32 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/user")
 public class UserController {
     private final UserService userService;
+    private final TokenProvider tokenProvider;
 
     @PostMapping("/login")
-    public ResponseEntity<TokenDto> login(@RequestBody UserDto.LoginRequestDto loginRequestDto) {
-        return ResponseEntity.ok(userService.login(loginRequestDto));
+    public ResponseEntity<UserDto.LoginResponseDto> login(@RequestBody UserDto.LoginRequestDto loginRequestDto, HttpServletResponse response) {
+        return ResponseEntity.ok(userService.login(loginRequestDto, response));
+    }
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
+        userService.logout(request, response);
+
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/test")
-    public ResponseEntity<String> test(@AuthenticationPrincipal PrincipalUser user) {
-        return ResponseEntity.ok("ddd");
+    /**
+     *
+     * @param request
+     * @param response
+     * @return ResponseEntity<UserDto.LoginResponseDto>
+     *
+     * 클라이언트에서 로그인 후 새로고침 시
+     * 유저 정보가 소멸되기 때문에 사라진 유저정보를 다시 돌리는 컨트롤러
+     *
+     */
+    @PostMapping("/refreshData")
+    public ResponseEntity<UserDto.LoginResponseDto> refreshData(HttpServletRequest request, HttpServletResponse response) {
+        return ResponseEntity.ok(userService.refreshData(request, response));
     }
 
 }

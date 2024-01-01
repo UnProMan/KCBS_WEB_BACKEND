@@ -72,4 +72,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Team> teams;
 
+    public User(Long id, ROLE role) {
+        this.id = id;
+        this.role = role;
+    }
+
 }
