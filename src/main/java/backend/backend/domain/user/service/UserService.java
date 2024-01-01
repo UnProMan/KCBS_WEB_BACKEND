@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,10 +77,10 @@ public class UserService {
     @Transactional
     public void logout(HttpServletRequest request ,HttpServletResponse response) {
         PrincipalUser user = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        SecurityContextHolder.getContext().setAuthentication(null);
 
         refreshTokenRepository.deleteById(user.getUser().getId());
         CookieUtil.removeCookie("KCBS-Refresh-Token", request, response);
+        SecurityContextHolder.clearContext();
     }
 
     /**
@@ -107,8 +108,8 @@ public class UserService {
                 return null;
             }
 
-            User user = userRepository.findById(refreshToken.get().getId()).orElseThrow();
-            String accessToken = tokenProvider.createAccessToken(String.format("%S:%s", user.getId(), user.getRole()));
+            User user = refreshToken.get().getUser();
+            String accessToken = tokenProvider.createAccessToken(String.format("%s:%s", user.getId(), user.getRole()));
 
             refreshToken.get().increaseReissueCount();
 

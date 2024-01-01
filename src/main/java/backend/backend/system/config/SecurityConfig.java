@@ -42,7 +42,8 @@ public class SecurityConfig {
                             .requestMatchers(
                                     new AntPathRequestMatcher("/"),
                                     new AntPathRequestMatcher("/api/user/login"),
-                                    new AntPathRequestMatcher("/api/join")
+                                    new AntPathRequestMatcher("/api/join"),
+                                    new AntPathRequestMatcher("/api/user/refreshData")
                             ).permitAll()
                             .requestMatchers(PathRequest.toH2Console()).permitAll()
                             .anyRequest().authenticated()

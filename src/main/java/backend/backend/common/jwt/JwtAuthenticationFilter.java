@@ -49,13 +49,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             String accessToken = tokenProvider.parseAccessToken(request);
-            String refreshToken = CookieUtil.findCookie("KCBS-Refresh-Token", request);
 
-            if (accessToken == null && refreshToken == null) {
+            if (accessToken == null) {
                 filterChain.doFilter(request, response);
                 return;
-            } else if (accessToken == null && refreshToken != null) {
-                throw new ExpiredJwtException(null, null, "Refresh Token expired");
             }
 
             PrincipalUser principalUser = parseUserSpecification(accessToken);

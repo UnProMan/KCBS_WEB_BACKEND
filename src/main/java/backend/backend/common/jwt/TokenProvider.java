@@ -5,9 +5,7 @@ import backend.backend.common.refreshToken.repository.RefreshTokenRepository;
 import backend.backend.domain.user.entity.User;
 import backend.backend.domain.user.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -16,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -34,17 +31,12 @@ public class TokenProvider {
     private final int reissueLimit;
     private final RefreshTokenRepository refreshTokenRepository;
 
-    private final UserRepository userRepository;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     public TokenProvider(
             @Value("${secret-key}") String secretKey,
             @Value("${expiration-minutes}") long expirationMinutes,
             @Value("${refresh-expiration-hours}") long refreshExpirationHours,
             @Value("${issuer}") String issuer,
-            RefreshTokenRepository refreshTokenRepository,
-            UserRepository userRepository
+            RefreshTokenRepository refreshTokenRepository
     ) {
         this.secretKey = secretKey;
         this.expirationMinutes = expirationMinutes;
@@ -52,7 +44,6 @@ public class TokenProvider {
         this.issuer = issuer;
         this.refreshTokenRepository = refreshTokenRepository;
         this.reissueLimit = (int) (refreshExpirationHours * 60 / expirationMinutes) + 50;
-        this.userRepository = userRepository;
     }
 
     public String createAccessToken(String userSpecification) {
@@ -104,9 +95,7 @@ public class TokenProvider {
     public String recreateAccessToken(String cookie_refreshToken) throws JsonProcessingException {
         RefreshToken refreshToken = refreshTokenRepository.findByRefreshTokenAndReissueCountLessThan(cookie_refreshToken, reissueLimit)
                 .orElseThrow(() -> new ExpiredJwtException(null, null, "Refresh Token expired"));
-
-        User user = userRepository.findById(refreshToken.getId())
-                .orElseThrow(() -> new ExpiredJwtException(null, null, "Refresh Token expired"));
+        User user = refreshToken.getUser();
 
         refreshToken.increaseReissueCount();
 

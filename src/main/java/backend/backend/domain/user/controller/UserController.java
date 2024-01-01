@@ -1,15 +1,12 @@
 package backend.backend.domain.user.controller;
 
 import backend.backend.common.jwt.TokenProvider;
-import backend.backend.domain.user.dto.PrincipalUser;
 import backend.backend.domain.user.dto.UserDto;
 import backend.backend.domain.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,10 +21,8 @@ public class UserController {
         return ResponseEntity.ok(userService.login(loginRequestDto, response));
     }
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
         userService.logout(request, response);
-
-        return ResponseEntity.ok().build();
     }
 
     /**
