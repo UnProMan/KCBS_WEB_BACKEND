@@ -13,7 +13,7 @@ public class DepartmentDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Response {
-        private Integer id;
+        private Long id;
         private String name;
 
         public static Response from(Department department) {

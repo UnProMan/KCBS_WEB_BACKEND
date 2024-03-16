@@ -1,7 +1,5 @@
 package backend.backend.domain.department.entity;
 
-import backend.backend.domain.parentDepartment.entity.ParentDepartment;
-import backend.backend.domain.team.entity.Team;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,7 +25,7 @@ public class Department {
             generator = "DEPARTMENT_SEQ_GENERATOR"
     )
     @Column(name = "ID")
-    private Integer id;
+    private Long id;
 
     @Column(name = "DEPARTMENT_NAME", nullable = false)
     private String name;

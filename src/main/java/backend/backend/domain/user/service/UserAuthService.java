@@ -1,14 +1,13 @@
 package backend.backend.domain.user.service;
 
-import backend.backend.domain.user.repository.UserQueryRepository;
+import backend.backend.domain.user.dto.PrincipalUser;
+import backend.backend.domain.user.dto.UserAuthDto;
+import backend.backend.domain.user.entity.User;
+import backend.backend.domain.user.repository.UserRepository;
 import backend.backend.system.security.jwt.TokenProvider;
 import backend.backend.system.security.refreshToken.entity.RefreshToken;
 import backend.backend.system.security.refreshToken.repository.RefreshTokenRepository;
-import backend.backend.system.security.util.CookieUtils;
-import backend.backend.domain.user.dto.PrincipalUser;
-import backend.backend.domain.user.dto.UserDto;
-import backend.backend.domain.user.entity.User;
-import backend.backend.domain.user.repository.UserRepository;
+import backend.backend.common.utils.CookieUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -17,19 +16,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+/**
+ * 로그인 비즈니스 로직
+ */
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class UserService {
+public class UserAuthService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder encoder;
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final UserQueryRepository userQueryRepository;
 
     /**
      *
@@ -45,7 +46,7 @@ public class UserService {
      *
      */
     @Transactional
-    public UserDto.LoginResponse login(UserDto.LoginRequest loginRequest, HttpServletResponse response) {
+    public UserAuthDto.LoginResponse login(UserAuthDto.LoginRequest loginRequest, HttpServletResponse response) {
         User user = userRepository.findByStudentId(loginRequest.getStudentId())
                 .filter(T -> encoder.matches(loginRequest.getPassword(), T.getPassword()))
                 .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 일치하지 않습니다."));
@@ -62,7 +63,7 @@ public class UserService {
 
         response.addHeader("Set-Cookie", CookieUtils.createCookie("KCBS-Refresh-Token", refreshToken));
 
-        return UserDto.LoginResponse.of(user, accessToken);
+        return UserAuthDto.LoginResponse.of(user, accessToken);
     }
 
     /**
@@ -75,7 +76,7 @@ public class UserService {
      *
      */
     @Transactional
-    public void logout(HttpServletRequest request ,HttpServletResponse response) {
+    public void logout(HttpServletRequest request , HttpServletResponse response) {
         PrincipalUser user = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         refreshTokenRepository.deleteById(user.getUser().getId());
@@ -96,7 +97,7 @@ public class UserService {
      *
      */
     @Transactional
-    public UserDto.LoginResponse refreshData(HttpServletRequest request, HttpServletResponse response) {
+    public UserAuthDto.LoginResponse refreshData(HttpServletRequest request, HttpServletResponse response) {
         try {
 
             String cookie_refreshToken = CookieUtils.findCookie("KCBS-Refresh-Token", request);
@@ -113,22 +114,10 @@ public class UserService {
 
             refreshToken.get().increaseReissueCount();
 
-            return UserDto.LoginResponse.of(user, accessToken);
+            return UserAuthDto.LoginResponse.of(user, accessToken);
         } catch (Exception e) {
             return null;
         }
-    }
-
-    /**
-     *
-     * @param searchName 검색할 이름
-     * @param department_id 검색할 부서
-     * @return
-     */
-    public List<UserDto.UsersResponse> users(String searchName, Integer department_id) {
-        return userQueryRepository.findUsers(searchName, department_id)
-                .stream().map(UserDto.UsersResponse::from)
-                .collect(Collectors.toList());
     }
 
 }

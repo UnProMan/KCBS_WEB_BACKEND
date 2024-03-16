@@ -1,6 +1,6 @@
 package backend.backend.system.security.jwt;
 
-import backend.backend.system.security.util.CookieUtils;
+import backend.backend.common.utils.CookieUtils;
 import backend.backend.domain.user.dto.PrincipalUser;
 import backend.backend.domain.user.entity.ROLE;
 import backend.backend.system.exception.ErrorCode;
@@ -81,7 +81,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 .split(":");
 
         return new PrincipalUser(
-                Integer.parseInt(split[0]),
+                Long.parseLong(split[0]),
                 ROLE.valueOf(split[1])
         );
     }

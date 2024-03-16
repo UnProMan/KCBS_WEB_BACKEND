@@ -1,4 +1,4 @@
-package backend.backend.system.security.util;
+package backend.backend.common.utils;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,12 +11,12 @@ public class CookieUtils {
 
     public static String createCookie(String name, String value) {
         return ResponseCookie.from(name, value)
-//                .domain("localhost")
+                .domain("localhost")
                 .path("/")
                 .maxAge(24 * 60 * 60)
-//                .secure(true)
-//                .httpOnly(true)
-//                .sameSite("strict")
+                .secure(true)
+                .httpOnly(true)
+                .sameSite("strict")
                 .build()
                 .toString();
     }

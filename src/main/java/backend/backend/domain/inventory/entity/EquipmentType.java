@@ -1,4 +1,4 @@
-package backend.backend.domain.equipmentType.entity;
+package backend.backend.domain.inventory.entity;
 
 import backend.backend.domain.inventory.entity.Inventory;
 import jakarta.persistence.*;
@@ -26,12 +26,12 @@ public class EquipmentType {
             generator = "EQUIPMENT_SEQ_GENERATOR"
     )
     @Column(name = "ID")
-    private Integer id;
+    private Long id;
 
     @Column(name = "TYPE_NAME", nullable = false)
-    private String type_Name;
+    private String typeName;
 
-    @OneToMany(mappedBy = "equipment_Type")
+    @OneToMany(mappedBy = "equipmentType")
     private List<Inventory> inventories;
 
 }

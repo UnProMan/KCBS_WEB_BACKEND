@@ -1,4 +1,4 @@
-package backend.backend.common.drive;
+package backend.backend.common.utils;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;

@@ -1,4 +1,4 @@
-package backend.backend.domain.parentDepartment.entity;
+package backend.backend.domain.department.entity;
 
 import backend.backend.domain.department.entity.Department;
 import jakarta.persistence.*;
@@ -26,10 +26,10 @@ public class ParentDepartment {
             generator = "PARENT_SEQ_GENERATOR"
     )
     @Column(name = "ID")
-    private Integer id;
+    private Long id;
 
     @Column(name = "PARENT_NAME", nullable = false)
-    private String parent_Name;
+    private String parentName;
 
     @OneToMany(mappedBy = "parentDepartment")
     private List<Department> departments;

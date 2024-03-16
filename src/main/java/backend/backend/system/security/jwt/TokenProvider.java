@@ -122,7 +122,7 @@ public class TokenProvider {
     public void validateRefreshToken(String oldAccessToken ,String refreshToken) throws JsonProcessingException {
         validateAndParseToken(refreshToken);
         String id = decodeJwtSubject(oldAccessToken).split(":")[0];
-        refreshTokenRepository.findByIdAndReissueCountLessThan(Integer.parseInt(id), reissueLimit)
+        refreshTokenRepository.findByIdAndReissueCountLessThan(Long.parseLong(id), reissueLimit)
                 .filter(f -> f.validRefreshToken(refreshToken))
                 .orElseThrow(() -> new ExpiredJwtException(null, null, "Refresh Token expired"));
     }

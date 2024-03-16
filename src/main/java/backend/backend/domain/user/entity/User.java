@@ -1,8 +1,7 @@
 package backend.backend.domain.user.entity;
 
-import backend.backend.domain.team.entity.Team;
+import backend.backend.domain.department.entity.Team;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,7 +32,7 @@ public class User {
             generator = "USER_SEQ_GENERATOR"
     )
     @Column(name = "ID")
-    private Integer id;
+    private Long id;
 
     @Column(name = "STUDENT_ID", unique = true, nullable = false)
     private String studentId;
@@ -51,11 +50,11 @@ public class User {
     private LocalDate birthday;
 
     @Column(name = "PHONE_NUMBER", nullable = false)
-    private String phone_Number;
+    private String phoneNumber;
 
     @Column(name = "STATE", nullable = false)
     @Enumerated(EnumType.STRING)
-    private Attendance_State attendance_State;
+    private AttendanceState attendanceState;
 
     @Column(name = "ROLE", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -66,12 +65,12 @@ public class User {
 
     @ColumnDefault("'1t_yV0Me_cx93jmjZOOVfqvzUiMmg9-r5'")
     @Column(name = "FILE_ID")
-    private String file_ID;
+    private String fileID;
 
     @OneToMany(mappedBy = "user")
     private List<Team> teams;
 
-    public User(Integer id, ROLE role) {
+    public User(Long id, ROLE role) {
         this.id = id;
         this.role = role;
     }

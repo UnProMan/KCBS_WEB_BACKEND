@@ -1,6 +1,5 @@
 package backend.backend.domain.dailyTask.entity;
 
-import backend.backend.domain.taskUsers.entity.TaskUsers;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,7 +26,7 @@ public class DailyTask {
             generator = "DAILY_SEQ_GENERATOR"
     )
     @Column(name = "ID")
-    private Integer id;
+    private Long id;
 
     @Column(name = "DATE", nullable = false)
     private LocalDate date;

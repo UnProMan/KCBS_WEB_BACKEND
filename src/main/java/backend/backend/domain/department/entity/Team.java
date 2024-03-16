@@ -1,4 +1,4 @@
-package backend.backend.domain.team.entity;
+package backend.backend.domain.department.entity;
 
 import backend.backend.domain.department.entity.Department;
 import backend.backend.domain.user.entity.User;
@@ -25,7 +25,7 @@ public class Team {
             generator = "TEAM_SEQ_GENERATOR"
     )
     @Column(name = "ID")
-    private Integer id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID", referencedColumnName = "ID")

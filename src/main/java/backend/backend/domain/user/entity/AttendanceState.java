@@ -1,5 +1,5 @@
 package backend.backend.domain.user.entity;
 
-public enum Attendance_State {
+public enum AttendanceState {
     재학, 휴학;
 }

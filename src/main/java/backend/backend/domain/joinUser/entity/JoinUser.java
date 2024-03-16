@@ -28,7 +28,7 @@ public class JoinUser {
             generator = "JOIN_SEQ_GENERATOR"
     )
     @Column(name = "ID")
-    private Integer id;
+    private Long id;
 
     @NotNull
     @Column(name = "STUDENT_ID", unique = true, nullable = false)
@@ -47,7 +47,7 @@ public class JoinUser {
     private LocalDate birthday;
 
     @Column(name = "PHONE_NUMBER", nullable = false)
-    private String phone_Number;
+    private String phoneNumber;
 
     @Column(name = "KISU", nullable = false)
     private Integer kisu;

@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class JoinUserService {
     private final JoinUserRepository joinUserRepository;
     private final UserRepository userRepository;
@@ -36,7 +35,7 @@ public class JoinUserService {
                         .email(joinUserRequest.getEmail())
                         .password(encoder.encode(joinUserRequest.getPassword()))
                         .birthday(joinUserRequest.getBirthday())
-                        .phone_Number(joinUserRequest.getPhone_Number())
+                        .phoneNumber(joinUserRequest.getPhoneNumber())
                         .kisu(joinUserRequest.getKisu())
                         .build()
        );

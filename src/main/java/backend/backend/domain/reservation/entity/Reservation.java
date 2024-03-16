@@ -1,10 +1,8 @@
 package backend.backend.domain.reservation.entity;
 
 import backend.backend.domain.inventory.entity.Inventory;
-import backend.backend.domain.reservation_SD.entity.Reservation_SD;
 import backend.backend.domain.user.entity.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,7 +29,7 @@ public class Reservation {
             generator = "RESERVATION_SEQ_GENERATOR"
     )
     @Column(name = "ID")
-    private Integer id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
@@ -42,19 +40,19 @@ public class Reservation {
     private Inventory inventory;
 
     @Column(name = "START_DT", nullable = false)
-    private LocalDateTime start_DT;
+    private LocalDateTime startDate;
 
     @Column(name = "RETURN_DT", nullable = false)
-    private LocalDateTime return_DT;
+    private LocalDateTime returnDate;
 
     @Column(name = "TRIPOD_COUNT", nullable = false)
     @ColumnDefault("0")
-    private Integer tripod_Count;
+    private Integer tripodCount;
 
     @Column(name = "BREAK_REPORT", nullable = false)
-    private String break_Report;
+    private String breakReport;
 
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL)
-    private List<Reservation_SD> reservation_SDs;
+    private List<ReservationSD> sdList;
 
 }

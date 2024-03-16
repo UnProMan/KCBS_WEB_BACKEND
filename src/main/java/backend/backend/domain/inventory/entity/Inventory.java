@@ -1,6 +1,5 @@
 package backend.backend.domain.inventory.entity;
 
-import backend.backend.domain.equipmentType.entity.EquipmentType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,10 +23,10 @@ public class Inventory {
             generator = "INVENTORY_SEQ_GENERATOR"
     )
     @Column(name = "ID")
-    private Integer id;
+    private Long id;
 
     @Column(name = "INVENTORY_NAME", nullable = false)
-    private String inventory_Name;
+    private String inventoryName;
 
     /**
      * h2 DB는 TINYINT(1)를 지원 안하기때문에 일단 true, false형식으로 받을 수 있게 변환
@@ -40,6 +39,6 @@ public class Inventory {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TYPE_ID", referencedColumnName = "ID")
-    private EquipmentType equipment_Type;
+    private EquipmentType equipmentType;
 
 }

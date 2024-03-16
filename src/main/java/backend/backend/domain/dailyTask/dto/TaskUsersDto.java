@@ -1,6 +1,6 @@
-package backend.backend.domain.taskUsers.dto;
+package backend.backend.domain.dailyTask.dto;
 
-import backend.backend.domain.taskUsers.entity.TaskUsers;
+import backend.backend.domain.dailyTask.entity.TaskUsers;
 import backend.backend.domain.user.dto.UserDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +14,7 @@ public class TaskUsersDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class TaskUsersResponse {
-        private Integer id;
+        private Long id;
         private UserDto.Response user;
 
         public static TaskUsersResponse from(TaskUsers taskUsers) {

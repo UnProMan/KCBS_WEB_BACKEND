@@ -24,11 +24,11 @@ public class Report {
             generator = "REPORT_SEQ_GENERATOR"
     )
     @Column(name = "ID")
-    private Integer id;
+    private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TASK_ID", referencedColumnName = "ID")
-    private DailyTask daily_Task;
+    private DailyTask dailyTask;
 
     @Lob
     @Column(name = "CONTENT")

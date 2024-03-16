@@ -1,6 +1,5 @@
 package backend.backend.domain.dailyTask.Repository;
 
-import backend.backend.domain.dailyTask.dto.DailyTaskDto;
 import backend.backend.domain.dailyTask.entity.DailyTask;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -10,12 +9,12 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static backend.backend.domain.dailyTask.entity.QDailyTask.dailyTask;
-import static backend.backend.domain.taskUsers.entity.QTaskUsers.taskUsers;
+import static backend.backend.domain.dailyTask.entity.QTaskUsers.taskUsers;
 import static backend.backend.domain.user.entity.QUser.user;
 
 @Repository
 @RequiredArgsConstructor
-public class DailyTaskQueryRepository {
+public class DailyTaskInfoQueryRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
 

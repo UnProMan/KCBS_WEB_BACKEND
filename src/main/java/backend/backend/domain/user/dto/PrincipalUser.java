@@ -17,7 +17,7 @@ public class PrincipalUser implements UserDetails {
         this.user = user;
     }
 
-    public PrincipalUser(Integer id, ROLE role) {
+    public PrincipalUser(Long id, ROLE role) {
         this.user = new User(id, role);
     }
     @Override

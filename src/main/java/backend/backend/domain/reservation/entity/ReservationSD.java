@@ -1,7 +1,6 @@
-package backend.backend.domain.reservation_SD.entity;
+package backend.backend.domain.reservation.entity;
 
 import backend.backend.domain.inventory.entity.Inventory;
-import backend.backend.domain.reservation.entity.Reservation;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,7 +16,7 @@ import lombok.NoArgsConstructor;
         allocationSize = 1
 )
 @Table(name = "RESERVATION_SD")
-public class Reservation_SD {
+public class ReservationSD {
 
     @Id
     @GeneratedValue(
@@ -25,7 +24,7 @@ public class Reservation_SD {
             generator = "SD_SEQ_GENERATOR"
     )
     @Column(name = "ID")
-    private Integer id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "RESERVATION_ID", referencedColumnName = "ID")

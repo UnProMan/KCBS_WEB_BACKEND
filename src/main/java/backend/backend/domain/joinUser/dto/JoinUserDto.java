@@ -40,7 +40,7 @@ public class JoinUserDto {
 
         @NotBlank
         @Pattern(regexp = "^010-[0-9]{4}-[0-9]{4}$")
-        private String phone_Number;
+        private String phoneNumber;
 
         @Positive
         private int kisu;

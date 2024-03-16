@@ -1,4 +1,4 @@
-package backend.backend.domain.taskUsers.entity;
+package backend.backend.domain.dailyTask.entity;
 
 import backend.backend.domain.dailyTask.entity.DailyTask;
 import backend.backend.domain.user.entity.User;
@@ -25,7 +25,7 @@ public class TaskUsers {
             generator = "TASK_SEQ_GENERATOR"
     )
     @Column(name = "ID")
-    private Integer id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TASK_ID", referencedColumnName = "ID")

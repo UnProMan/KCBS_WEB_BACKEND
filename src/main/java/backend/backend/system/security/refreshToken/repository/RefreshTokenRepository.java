@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Integer> {
+public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
 
     /**
      *
@@ -19,6 +19,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Inte
      *
      */
     Optional<RefreshToken> findByRefreshTokenAndReissueCountLessThan(String refreshToken, int count);
-    Optional<RefreshToken> findByIdAndReissueCountLessThan(Integer id, int count);
+    Optional<RefreshToken> findByIdAndReissueCountLessThan(Long id, int count);
 
 }

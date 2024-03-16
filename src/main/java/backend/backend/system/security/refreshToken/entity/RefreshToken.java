@@ -17,7 +17,7 @@ public class RefreshToken {
 
     @Id
     @Column(name = "ID")
-    private Integer id;
+    private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID")

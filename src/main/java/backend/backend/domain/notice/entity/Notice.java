@@ -1,6 +1,5 @@
 package backend.backend.domain.notice.entity;
 
-import backend.backend.domain.notcieFiles.entity.NoticeFiles;
 import backend.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,7 +27,7 @@ public class Notice {
             generator = "NOTICE_SEQ_GENERATOR"
     )
     @Column(name = "ID")
-    private Integer id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID", referencedColumnName = "ID")
@@ -42,11 +41,11 @@ public class Notice {
     private String content;
 
     @Column(name = "WRITE_DATE", nullable = false)
-    private LocalDate write_Date;
+    private LocalDate writeDate;
 
     /**
      * h2 DB는 TINYINT(1)를 지원 안하기때문에 일단 true, false형식으로 받을 수 있게 변환
-     * 추후에 MySQL로 변경시 다시 변경
+     * @TODO 추후에 MySQL로 변경시 다시 변경
      */
     @Column(name = "AUTH")
 //    @ColumnDefault("false")

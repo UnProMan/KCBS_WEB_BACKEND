@@ -1,4 +1,4 @@
-package backend.backend.domain.notcieFiles.entity;
+package backend.backend.domain.notice.entity;
 
 import backend.backend.domain.notice.entity.Notice;
 import jakarta.persistence.*;
@@ -24,13 +24,13 @@ public class NoticeFiles {
             generator = "FILES_SEQ_GENERATOR"
     )
     @Column(name = "ID")
-    private Integer id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "NOTICE_ID", referencedColumnName = "ID")
     private Notice notice;
 
     @Column(name = "FILE_ID", nullable = false)
-    private String file_ID;
+    private String fileID;
 
 }
