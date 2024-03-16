@@ -1,0 +1,24 @@
+server:
+  host:
+    api: http://localhost:8080
+    front: http://localhost:5173
+
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: true
+  datasource:
+    url: jdbc:h2:~/kcbs
+    username: sa
+    passward:
+    drive-class-name: org.h2.Driver
+
+  jpa:
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always
